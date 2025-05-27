@@ -1,7 +1,12 @@
 streamlit
+Pillow
 numpy
 pandas
-Pillow
+opencv-python-headless
+pytesseract
+ta
+requests
+
 
 
 
