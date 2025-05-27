@@ -2,8 +2,6 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import pandas as pd
-import ta
-import matplotlib.pyplot as plt
 
 st.title("📈 Crypto Chart Signal Detector (AI)")
 
@@ -15,20 +13,32 @@ if uploaded_file is not None:
 
     st.write("🔍 **Analyzing chart...**")
 
+    # Simulated price data
     close_prices = np.random.normal(loc=100, scale=5, size=100)
-    df = ta.utils.dropna(ta.add_all_ta_features(
-        pd.DataFrame({'close': close_prices, 'open': close_prices, 'high': close_prices+2, 'low': close_prices-2, 'volume': np.random.randint(100, 1000, size=100)})
-    ))
+    df = pd.DataFrame({'close': close_prices})
+
+    # Calculate RSI
+    delta = df['close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+    rs = gain / loss
+    df['RSI'] = 100 - (100 / (1 + rs))
+
+    # Calculate MACD
+    exp1 = df['close'].ewm(span=12, adjust=False).mean()
+    exp2 = df['close'].ewm(span=26, adjust=False).mean()
+    df['MACD'] = exp1 - exp2
+    df['Signal'] = df['MACD'].ewm(span=9, adjust=False).mean()
 
     last_close = df['close'].iloc[-1]
-    last_rsi = df['momentum_rsi'].iloc[-1]
-    last_macd = df['trend_macd'].iloc[-1]
-    last_macd_signal = df['trend_macd_signal'].iloc[-1]
+    last_rsi = df['RSI'].iloc[-1]
+    last_macd = df['MACD'].iloc[-1]
+    last_signal = df['Signal'].iloc[-1]
 
     signal = None
-    if last_rsi < 30 and last_macd > last_macd_signal:
+    if last_rsi < 30 and last_macd > last_signal:
         signal = "📈 LONG"
-    elif last_rsi > 70 and last_macd < last_macd_signal:
+    elif last_rsi > 70 and last_macd < last_signal:
         signal = "📉 SHORT"
     else:
         signal = "❓ Unclear Signal"
@@ -45,7 +55,7 @@ if uploaded_file is not None:
 
     st.subheader(f"🔍 **Signal Analysis**")
     st.write(f"**RSI:** {round(last_rsi,2)}")
-    st.write(f"**MACD:** {round(last_macd,4)} vs Signal: {round(last_macd_signal,4)}")
+    st.write(f"**MACD:** {round(last_macd,4)} vs Signal: {round(last_signal,4)}")
     st.write(f"### 🏁 **Final Decision:** {signal}")
 
     if signal != "❓ Unclear Signal":
