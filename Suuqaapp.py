@@ -1,7 +1,6 @@
 import streamlit as st
-import cv2
-import numpy as np
 from PIL import Image
+import numpy as np
 import pandas as pd
 import ta
 import matplotlib.pyplot as plt
@@ -13,8 +12,6 @@ uploaded_file = st.file_uploader("📤 Upload chart screenshot (PNG, JPG)", type
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.image(image, caption="Uploaded Chart", use_column_width=True)
-
-    img = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
     st.write("🔍 **Analyzing chart...**")
 
