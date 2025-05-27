@@ -13,7 +13,7 @@ if uploaded_file is not None:
 
     st.write("🔍 **Analyzing chart...**")
 
-    # Simulated price data
+    # Simulated price data (Random, for demonstration)
     close_prices = np.random.normal(loc=100, scale=5, size=100)
     df = pd.DataFrame({'close': close_prices})
 
